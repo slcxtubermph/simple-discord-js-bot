@@ -1,31 +1,35 @@
-const db = require("quick.db");
-const sourcebin = require('sourcebin_js');
-const Discord = require("discord.js");
+const ms = require('ms');
+
 module.exports = {
-  name: "delete",
-  aliases: ["nikal"],
+  name: "gdelete",
+  aliases: ["gcancel", "gdelete"],
   execute: async(client, message, args) => {
-     if (!message.member.hasPermission("MANAGE_SERVER")) {
-       return;
-     }
-    var prefix =  db.fetch(`guildprefix_${message.guild.id}`);
-    if(!prefix)
+
+
+  // If the member doesn't have enough permissions
+     if (!message.member.hasPermission("MANAGE_GUILD"))
     {
-      var prefix = ".";
+       message.channel.send(
+        "You need `MANAGE GUILD` to Access this Command!"
+      );
+      return;
+}
+
+
+    if(!args[0]){
+        return message.channel.send(':x: You have to specify a valid message ID!');
     }
 
-if(message.channel.name.includes('ticket-')) {
-			message.channel.delete();
-		}
-		else {
-			return message.reply('you cannot use this command here. Please use this command when you want to delete a ticket.');
-		}
-
-}
-}
+    let messageID = args[0];
+        client.giveawaysManager.delete(messageID).then(() => {
+            message.channel.send("✅ Giveaway deleted!");
+        }).catch((err) => {
+            message.channel.send(":x: No giveaway found for \`${messageID}\`, please check you have the right message and try again.");
+        });
+}}
 module.exports.help = {
-    name: "delete",
-    description: "It will forcely delete the ticket channel",
-    usage: "delete",
-    type: "Ticket"  
+    name: "gdelete",
+    description: "It will delete the Giveaway",
+    usage: "gdelete <message_id>",
+    type: "Giveaway"  
 }
